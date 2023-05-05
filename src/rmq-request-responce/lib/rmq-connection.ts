@@ -1,7 +1,5 @@
-import amqplib, { Channel, Connection } from 'amqplib';
-import { rmqConfig } from '../../config/config-rmq.js';
-import { delay } from '../../helpers/common.js';
-import { NLog } from 'tslog-fork';
+import { AMQPClient, AMQPChannel } from '@cloudamqp/amqp-client';
+// import {AMQPBaseClient} from "@cloudamqp/amqp-client/src/amqp-base-client.js";
 
 /*
  returns singleton contains RMQ connection and chanel
@@ -10,8 +8,8 @@ import { NLog } from 'tslog-fork';
  */
 
 export class RmqConnection {
-  public connection: Connection;
-  public channel: Channel;
+  public connection: AMQPClient;
+  public channel: AMQPChannel;
 
   private static instance: RmqConnection;
 
@@ -23,9 +21,17 @@ export class RmqConnection {
   private static async RmqConnection() {
     const rmqConnection = new RmqConnection();
 
-    // const rcq = new RMQ_construct_queues(exchange, queueInputName, routingKey);
-    rmqConnection.connection = await amqplib.connect(rmqConfig);
-    rmqConnection.channel = await rmqConnection.connection.createChannel();
+    const amqp = new AMQPClient('amqp://localhost');
+
+    rmqConnection.connection = (await amqp.connect()) as AMQPClient;
+    rmqConnection.channel = await rmqConnection.connection.channel();
+
+    /*
+     * установить что выбирается только одно сообщение за раз
+     * global: boolean – if the prefetch is limited to the channel, or if false to each consumer
+     */
+
+    rmqConnection.channel.basicQos(1, 0, false);
 
     return rmqConnection;
   }
@@ -37,16 +43,8 @@ export class RmqConnection {
     return RmqConnection.instance;
   }
 
-  static async closeRMQconnection() {
-    const rmq = RmqConnection.instance;
-    if (!rmq || !rmq.channel || !rmq.connection) return;
-    await delay(500);
-    await rmq.channel.close();
-    await rmq.connection.close();
-    RmqConnection.instance = null;
-    rmq.connection = null;
-    rmq.channel = null;
-    const log = NLog.getInstance();
-    log.info('Channel and connection closed');
+  async closeConnection() {
+    if (!RmqConnection.instance) return;
+    await this.connection.close();
   }
 }

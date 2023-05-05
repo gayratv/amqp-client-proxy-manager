@@ -1,34 +1,27 @@
-import amqplib, { Channel, Connection } from 'amqplib';
 import { NLog } from 'tslog-fork';
 import { RmqConnection } from './rmq-connection.js';
+import { AMQPChannel, AMQPClient } from '@cloudamqp/amqp-client';
 
 /*
  * порядок использования
  * const a=new RMQ_construct_queues(....);
  * await a.createRMQ_construct_queues()
  */
-export class RMQ_construct_queues {
+export class RMQ_construct_exchange {
   public log = NLog.getInstance();
-  public connection: Connection;
-  public channel: Channel;
+  public connection: AMQPClient;
+  public channel: AMQPChannel;
 
   constructor(public exchange: string, public queueInputName: string, public routingKey: string) {}
 
   /*
    * инициализирует exchange типа direct
-   * а такеже очередь queueInputName
    */
-  async createRMQ_construct_queues() {
+  async createRMQ_construct_exchange() {
     const rcon = await RmqConnection.getInstance();
     this.connection = rcon.connection;
     this.channel = rcon.channel;
 
-    await rcon.channel.assertExchange(this.exchange, 'direct', { durable: false });
-  }
-
-  async closeConnections() {
-    await RmqConnection.closeRMQconnection();
-    this.connection = null;
-    this.channel = null;
+    await rcon.channel.exchangeDeclare(this.exchange, 'direct', { durable: false });
   }
 }

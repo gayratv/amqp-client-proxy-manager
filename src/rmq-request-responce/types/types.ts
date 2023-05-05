@@ -1,9 +1,9 @@
 // сообщение запроса proxy
-import { ConsumeMessage } from 'amqplib';
 import { RMQ_serverQuery } from '../server/server.js';
 import { Proxy } from '../../resource-manage/types/Database.js';
 import { ProxyObject } from '../../resource-manage/index.js';
 import { RMQ_proxyClientQuery } from '../clients/clients.js';
+import { AMQPMessage } from '@cloudamqp/amqp-client';
 
 export interface MSGbaseEnquiry<Parm extends Record<string, unknown> = {}> {
   responseQueueName: string; // имя очереди для ответа
@@ -41,8 +41,10 @@ export interface ProxyReturnResponce extends BaseResponce {
 export type Worker<P extends Record<any, unknown>, R> = (
   this: RMQ_serverQuery,
   jobWorker: JobWorker<P, R>,
-  msg: ConsumeMessage,
+  type: string,
+  msg: AMQPMessage,
 ) => Promise<void>;
-export type ClientHandler = (this: RMQ_proxyClientQuery, msg: ConsumeMessage) => Promise<void>;
+
+export type ClientHandler = (this: RMQ_proxyClientQuery, msg: AMQPMessage) => Promise<void>;
 
 export type JobWorker<P extends Record<any, unknown>, R> = (params: P) => Promise<R>;

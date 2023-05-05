@@ -1,7 +1,7 @@
 import { RMQ_clientQueryBase } from './base-clients.js';
-import { ConsumeMessage } from 'amqplib';
 import { TIME_WAIT_PROXY_ANSWER } from '../../config/config-rmq.js';
-import { BaseResponce, MSGbaseEnquiry } from '../types/types.js';
+import { BaseResponce } from '../types/types.js';
+import { AMQPMessage } from '@cloudamqp/amqp-client';
 
 export class RMQ_proxyClientQuery extends RMQ_clientQueryBase {
   protected registeredCallback = new Map<number, (result?: unknown) => void>();
@@ -15,20 +15,24 @@ export class RMQ_proxyClientQuery extends RMQ_clientQueryBase {
    */
   static async createRMQ_clientQuery(exchange: string, queueInputName: string, routingKey: string) {
     const cli = new RMQ_proxyClientQuery(exchange, queueInputName, routingKey);
-    await cli.createRMQ_clientQueryBase(cli.handleResponse);
+
+    const bindHandlers = cli.handleResponse.bind(this);
+    await cli.createRMQ_clientQueryBase(bindHandlers);
 
     return cli;
   }
 
   // от сервера поступили ответы на запросы - надо с ними как то поступить
-  private handleResponse = async (msg: ConsumeMessage) => {
-    const result: BaseResponce = JSON.parse(msg.content.toString());
+  private handleResponse = async (msg: AMQPMessage) => {
+    const result: BaseResponce = JSON.parse(msg.bodyToString());
     this.log.debug('Получен ответ от сервера  internalID:', result.internalID);
     this.log.debug('Получен ответ от сервера  userData:', result.userData);
-    this.channel.ack(msg);
-    if (result.internalID != null) {
-      const callBack = this.registeredCallback.get(result.internalID);
-      this.registeredCallback.delete(result.internalID);
+    await this.channel.basicAck(msg.deliveryTag);
+    // msg.properties.correlationId
+    if (msg.properties.correlationId != null) {
+      const id = parseInt(msg.properties.correlationId, 10);
+      const callBack = this.registeredCallback.get(id);
+      this.registeredCallback.delete(id);
       callBack && callBack(result);
     }
   };
@@ -37,7 +41,7 @@ export class RMQ_proxyClientQuery extends RMQ_clientQueryBase {
    * послать сообщение обработчику
    * params если определен - то должен быть объектом с ключом
    */
-  async sendRequest<Tquery_param = Record<string, any>, TreturnResult = unknown>(
+  /*async sendRequest<Tquery_param = Record<string, any>, TreturnResult = unknown>(
     params?: Tquery_param,
   ): Promise<TreturnResult> {
     const internalID = this.internalID++;
@@ -60,18 +64,26 @@ export class RMQ_proxyClientQuery extends RMQ_clientQueryBase {
       };
       this.registeredCallback.set(internalID, callback);
     });
-  }
+  }*/
 
   /*
-   * послать только  сообщение обработчику
+   * послать только сообщение обработчику
    * params если определен - то должен быть объектом с ключом
    */
   async sendRequestOnly<Tquery_param = Record<string, any>>(params?: Tquery_param): Promise<void> {
     const internalID = this.internalID++;
 
-    const msg = Object.assign({ internalID, responseQueueName: this.responceQueueName }, { params: params });
+    // const msg = Object.assign({ internalID, responseQueueName: this.responceQueueName }, { params: params });
+    const msg = params;
     // this.log.warn(msg);
 
-    this.channel.publish(this.exchange, this.routingKey, Buffer.from(JSON.stringify(msg)));
+    await this.channel.basicPublish(this.exchange, this.routingKey, JSON.stringify(msg), {
+      deliveryMode: 1,
+      correlationId: internalID.toString(),
+      replyTo: this.responceQueueName,
+      messageId: internalID.toString(),
+      timestamp: new Date(),
+      type: 'getProxy',
+    });
   }
 }

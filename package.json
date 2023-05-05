@@ -16,8 +16,9 @@
     "build": "rimraf dist && rimraf tsconfig.tsbuildinfo && node ./scripts/esbuild.js && tsc && rimraf dist/localtest dist/net-socket/helpers ",
     "type-check": "tsc -noEmit",
     "pub": "npm publish --public",
-    "server": "ts-node -r tsconfig-paths/register ./src/localtest/server.test.ts",
-    "test": "ts-node src/test-RMQ-proxy.ts"
+    "server-old": "ts-node -r tsconfig-paths/register ./src/localtest/server.test.ts",
+    "server": "ts-node  ./src/server-run.ts",
+    "client": "ts-node  ./src/client-run.ts"
   },
   "keywords": [
     "raabitmq",

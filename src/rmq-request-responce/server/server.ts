@@ -1,10 +1,11 @@
-import { RMQ_construct_queues } from '../lib/base-req-res.js';
+import { RMQ_construct_exchange } from '../lib/base-req-res.js';
 import { JobWorker, Worker } from '../types/types.js';
+import { AMQPQueue } from '@cloudamqp/amqp-client';
 
 /*
  * принимает запрос по queue и отправляет ответ в очередь, указанную в msg
  */
-export class RMQ_serverQuery extends RMQ_construct_queues {
+export class RMQ_serverQuery extends RMQ_construct_exchange {
   private constructor(exchange: string, queueInputName: string, routingKey: string) {
     super(exchange, queueInputName, routingKey);
   }
@@ -20,7 +21,7 @@ export class RMQ_serverQuery extends RMQ_construct_queues {
     jobWorker: JobWorker<P, R>,
   ) {
     const rserver = new RMQ_serverQuery(exchange, queueInputName, routingKey);
-    await rserver.createRMQ_construct_queues();
+    await rserver.createRMQ_construct_exchange();
 
     // добавить первую очередь
     await rserver.addQueues(queueInputName, worker, jobWorker);
@@ -28,12 +29,15 @@ export class RMQ_serverQuery extends RMQ_construct_queues {
     return rserver;
   }
 
-  private async consumeRequest<P extends Record<any, unknown>, R>(worker: Worker<P, R>, jobWorker: JobWorker<P, R>) {
-    const workerBind = worker.bind(this, jobWorker);
-    // клиенты будут получать по одному сообщению за один раз
-    await this.channel.prefetch(1, false); // Per consumer limit
+  private async consumeRequest<P extends Record<any, unknown>, R>(
+    worker: Worker<P, R>,
+    jobWorker: JobWorker<P, R>,
+    type: string,
+    q: AMQPQueue,
+  ) {
+    const workerBind = worker.bind(this, jobWorker, type);
 
-    await this.channel.consume(this.queueInputName, workerBind, { noAck: false });
+    const consumer = await q.subscribe({ noAck: false }, workerBind);
   }
 
   /*
@@ -45,8 +49,9 @@ export class RMQ_serverQuery extends RMQ_construct_queues {
     worker: Worker<P, R>,
     jobWorker: JobWorker<P, R>,
   ) {
-    await this.channel.assertQueue(queueName, { durable: false });
-    await this.channel.bindQueue(queueName, this.exchange, queueName);
-    await this.consumeRequest(worker, jobWorker);
+    const q = await this.channel.queue(queueName, { passive: false, durable: false, autoDelete: false });
+    await this.channel.queueBind(queueName, this.exchange, queueName);
+
+    await this.consumeRequest(worker, jobWorker, queueName, q);
   }
 }
