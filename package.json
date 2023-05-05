@@ -31,9 +31,9 @@
     "access": "public"
   },
   "devDependencies": {
-    "@types/amqplib": "^0.10.1",
+
     "@types/node": "^18.11.10",
-    "@types/tape": "^4.13.4",
+
     "@types/uuid": "^9.0.1",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
@@ -43,7 +43,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "prettier": "^2.8.0",
     "rimraf": "^3.0.2",
-    "tape": "^5.6.3",
+
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^3.14.2",
     "tslog-fork": "^4.8.19",
