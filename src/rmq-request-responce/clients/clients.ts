@@ -20,7 +20,7 @@ export class RMQ_proxyClientQuery extends RMQ_clientQueryBase {
    */
   private constructor(exchange: string, queueInputName: string, routingKey: string) {
     super(exchange, queueInputName, routingKey);
-    this.log.minLevel = LoggerLevel.info;
+    // this.log.minLevel = LoggerLevel.info;
   }
 
   /*
@@ -61,13 +61,14 @@ export class RMQ_proxyClientQuery extends RMQ_clientQueryBase {
    * params если определен - то должен быть объектом с ключом
    */
   async sendRequestAndResieveAnswer<Tquery_param = Record<string, any>, TreturnResult = unknown>(
+    routingKey: string,
     params?: Tquery_param,
   ): Promise<TreturnResult> {
     const internalID = this.internalID++;
 
     const msg = params;
 
-    await this.channel.basicPublish(this.exchange, this.routingKey, JSON.stringify(msg), {
+    await this.channel.basicPublish(this.exchange, routingKey, JSON.stringify(msg), {
       deliveryMode: 1,
       correlationId: internalID.toString(),
       replyTo: this.responceQueueName,
@@ -93,12 +94,10 @@ export class RMQ_proxyClientQuery extends RMQ_clientQueryBase {
    * послать только сообщение обработчику
    * params если определен - то должен быть объектом с ключом
    */
-  async sendRequestOnly<Tquery_param = Record<string, any>>(params?: Tquery_param): Promise<void> {
+  async sendRequestOnly<Tquery_param = Record<string, any>>(routingKey: string, params?: Tquery_param): Promise<void> {
     const internalID = this.internalID++;
 
-    const msg = params;
-
-    await this.channel.basicPublish(this.exchange, this.routingKey, JSON.stringify(msg), {
+    await this.channel.basicPublish(this.exchange, routingKey, JSON.stringify(params), {
       deliveryMode: 1,
       correlationId: internalID.toString(),
       replyTo: this.responceQueueName,

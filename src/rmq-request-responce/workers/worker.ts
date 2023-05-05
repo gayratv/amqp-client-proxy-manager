@@ -24,7 +24,7 @@ export async function workerBase<P extends Record<any, unknown>, R>(
 
   // const payload: MSGbaseEnquiry = JSON.parse(msg.bodyToString());
   const payload = JSON.parse(msg.bodyToString());
-  log.debug('Получил задание deliveryTag : ', msg.deliveryTag, msg.bodyToString());
+  log.debug('Получил задание deliveryTag : ', msg.deliveryTag, ' routingKey ', msg.routingKey, msg.bodyToString());
   // log.debug(msg);
 
   // {"leasedTime":3000}
@@ -56,10 +56,10 @@ export async function workerBase<P extends Record<any, unknown>, R>(
  */
 export async function getProxy(params: ParamGetProxy) {
   // await delay(3_000);
-  log.debug('getProxy return');
   return await resourceManager.getResource<Proxy>(params.leasedTime);
 }
 
 export async function returnProxy(params: ParamReturnProxy) {
+  // boolean
   return await resourceManager.returnResourceByKey(params.uniqueKey);
 }

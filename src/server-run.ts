@@ -3,7 +3,7 @@ import { proxyRMQnames } from './config/config-rmq.js';
 import { initProxyPool } from './rmq-request-responce/workers/resource-manager-instance.js';
 import { NLog } from 'tslog-fork';
 import { RMQ_serverQuery } from './rmq-request-responce/server/server.js';
-import { getProxy, returnProxy, workerBase } from './rmq-request-responce/workers/worker-get-proxy.js';
+import { getProxy, returnProxy, workerBase } from './rmq-request-responce/workers/worker.js';
 import { ParamGetProxy } from './rmq-request-responce/types/types.js';
 
 const log = NLog.getInstance();
@@ -19,7 +19,7 @@ async function serverRun() {
     getProxy,
   );
   // второй метод - returnProxy
-  // srv1.addQueues(proxyRMQnames.returnProxy, workerBase, returnProxy);
+  srv1.addQueues(proxyRMQnames.returnProxy, workerBase, returnProxy);
 }
 
 await serverRun();

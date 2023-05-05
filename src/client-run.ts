@@ -1,10 +1,8 @@
 import { RMQ_proxyClientQuery } from './rmq-request-responce/clients/clients.js';
 import { proxyRMQnames } from './config/config-rmq.js';
-import { initProxyPool } from './rmq-request-responce/workers/resource-manager-instance.js';
 import { NLog } from 'tslog-fork';
-import { RMQ_serverQuery } from './rmq-request-responce/server/server.js';
-import { getProxy, returnProxy, workerBase } from './rmq-request-responce/workers/worker-get-proxy.js';
-import { GetProxyReturn, ParamGetProxy } from './rmq-request-responce/types/types.js';
+import { GetProxyReturn, ParamGetProxy, ParamReturnProxy } from './rmq-request-responce/types/types.js';
+import { delay } from './helpers/common.js';
 
 const log = NLog.getInstance();
 
@@ -21,14 +19,20 @@ async function clientRun() {
   // данные пользователя передаются в объекте {params : ....}
   for (let i = 0; i < 10; i++) {
     // log.debug(' var i', i);
-    const p1: GetProxyReturn = await cli.sendRequestAndResieveAnswer<ParamGetProxy, GetProxyReturn>({
-      leasedTime: 3_000,
-    });
+    const p1: GetProxyReturn = await cli.sendRequestAndResieveAnswer<ParamGetProxy, GetProxyReturn>(
+      proxyRMQnames.getproxy,
+      {
+        leasedTime: 3_000,
+      },
+    );
+
     log.info(' Клиент получил ответ сервера', p1.userData.uniqueKey);
 
-    // await cli.sendRequestOnly<ParamGetProxy>({ leasedTime: 3_000 });
+    // вернуть proxy в пул после использования
+    await delay(1_000);
+    await cli.sendRequestOnly<ParamReturnProxy>(proxyRMQnames.returnProxy, { uniqueKey: p1.userData.uniqueKey });
 
-    // log.info(' Клиент получил ответ сервера', p1.userData.uniqueKey);
+    // await cli.sendRequestOnly<ParamGetProxy>({ leasedTime: 3_000 });
   }
   log.info('Запросы на сервер отправлены');
 }

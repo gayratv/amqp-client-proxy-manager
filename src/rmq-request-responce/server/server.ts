@@ -50,6 +50,7 @@ export class RMQ_serverQuery extends RMQ_construct_exchange {
     jobWorker: JobWorker<P, R>,
   ) {
     const q = await this.channel.queue(queueName, { passive: false, durable: false, autoDelete: false });
+
     await this.channel.queueBind(queueName, this.exchange, queueName);
 
     await this.consumeRequest(worker, jobWorker, queueName, q);
