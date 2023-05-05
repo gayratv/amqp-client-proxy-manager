@@ -22,11 +22,11 @@ export class RMQ_clientQueryBase extends RMQ_construct_exchange {
   // инициализировать очередь для ответов от сервера
   private async initPrivateQueueForResponses(handleResponse: ClientHandler) {
     this.responceQueueName = `proxy-${uuidv4()}`;
+
     const q = await this.channel.queue(this.responceQueueName, { passive: false, durable: false, autoDelete: true });
+    await this.channel.queueBind(this.responceQueueName, this.exchange, this.responceQueueName);
 
     // responseQueueName - в эту очередь поступают ответы от сервера
-    // await this.channel.consume(this.responceQueueName, handleResponse, { noAck: false });
-
     const consumer = await q.subscribe({ noAck: false }, handleResponse);
   }
 }

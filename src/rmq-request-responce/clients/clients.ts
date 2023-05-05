@@ -25,8 +25,14 @@ export class RMQ_proxyClientQuery extends RMQ_clientQueryBase {
   // от сервера поступили ответы на запросы - надо с ними как то поступить
   private handleResponse = async (msg: AMQPMessage) => {
     const result: BaseResponce = JSON.parse(msg.bodyToString());
-    this.log.debug('Получен ответ от сервера  internalID:', result.internalID);
-    this.log.debug('Получен ответ от сервера  userData:', result.userData);
+    this.log.debug(
+      'Получен ответ от сервера  deliveryTag:',
+      msg.deliveryTag,
+      ' correlationId ',
+      msg.properties.correlationId,
+      ' BaseResponce ',
+      msg.bodyToString(),
+    );
     await this.channel.basicAck(msg.deliveryTag);
     // msg.properties.correlationId
     if (msg.properties.correlationId != null) {
@@ -85,5 +91,6 @@ export class RMQ_proxyClientQuery extends RMQ_clientQueryBase {
       timestamp: new Date(),
       type: 'getProxy',
     });
+    this.log.info('Запрос correlationId', internalID);
   }
 }
