@@ -2,12 +2,25 @@ import { RMQ_clientQueryBase } from './base-clients.js';
 import { TIME_WAIT_PROXY_ANSWER } from '../../config/config-rmq.js';
 import { BaseResponce } from '../types/types.js';
 import { AMQPMessage } from '@cloudamqp/amqp-client';
+import { LoggerLevel } from 'tslog-fork';
 
 export class RMQ_proxyClientQuery extends RMQ_clientQueryBase {
   protected registeredCallback = new Map<number, (result?: unknown) => void>();
 
+  /*
+  export enum LoggerLevel {
+  silly,
+  trace,
+  debug,
+  info,
+  warn,
+  error,
+  fatal,
+}
+   */
   private constructor(exchange: string, queueInputName: string, routingKey: string) {
     super(exchange, queueInputName, routingKey);
+    this.log.minLevel = LoggerLevel.info;
   }
 
   /*
@@ -44,20 +57,24 @@ export class RMQ_proxyClientQuery extends RMQ_clientQueryBase {
   };
 
   /*
-   * послать сообщение обработчику
+   * послать сообщение  обработчику и получить ответ
    * params если определен - то должен быть объектом с ключом
    */
-  /*async sendRequest<Tquery_param = Record<string, any>, TreturnResult = unknown>(
+  async sendRequestAndResieveAnswer<Tquery_param = Record<string, any>, TreturnResult = unknown>(
     params?: Tquery_param,
   ): Promise<TreturnResult> {
     const internalID = this.internalID++;
 
-    // const msg1: MSGbaseEnquiry = { internalID: 1, responseQueueName: '1', params: { leasedTime: 100 } };
+    const msg = params;
 
-    const msg = Object.assign({ internalID, responseQueueName: this.responceQueueName }, { params: params });
-    // this.log.warn(msg);
-
-    this.channel.publish(this.exchange, this.routingKey, Buffer.from(JSON.stringify(msg)));
+    await this.channel.basicPublish(this.exchange, this.routingKey, JSON.stringify(msg), {
+      deliveryMode: 1,
+      correlationId: internalID.toString(),
+      replyTo: this.responceQueueName,
+      messageId: internalID.toString(),
+      timestamp: new Date(),
+      type: 'getProxy',
+    });
 
     return new Promise<TreturnResult>((resolve, reject) => {
       const timerAbortId = setTimeout(() => {
@@ -70,7 +87,7 @@ export class RMQ_proxyClientQuery extends RMQ_clientQueryBase {
       };
       this.registeredCallback.set(internalID, callback);
     });
-  }*/
+  }
 
   /*
    * послать только сообщение обработчику
@@ -79,9 +96,7 @@ export class RMQ_proxyClientQuery extends RMQ_clientQueryBase {
   async sendRequestOnly<Tquery_param = Record<string, any>>(params?: Tquery_param): Promise<void> {
     const internalID = this.internalID++;
 
-    // const msg = Object.assign({ internalID, responseQueueName: this.responceQueueName }, { params: params });
     const msg = params;
-    // this.log.warn(msg);
 
     await this.channel.basicPublish(this.exchange, this.routingKey, JSON.stringify(msg), {
       deliveryMode: 1,

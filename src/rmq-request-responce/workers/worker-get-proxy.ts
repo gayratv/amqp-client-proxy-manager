@@ -55,7 +55,7 @@ export async function workerBase<P extends Record<any, unknown>, R>(
  * вызов функции которая исполняет конкретное действие
  */
 export async function getProxy(params: ParamGetProxy) {
-  await delay(3_000);
+  // await delay(3_000);
   log.debug('getProxy return');
   return await resourceManager.getResource<Proxy>(params.leasedTime);
 }

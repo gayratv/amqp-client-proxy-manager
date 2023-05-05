@@ -19,11 +19,14 @@ async function clientRun() {
   );
 
   // данные пользователя передаются в объекте {params : ....}
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 10; i++) {
     // log.debug(' var i', i);
-    // const p1: GetProxyReturn = await cli.sendRequest<ParamGetProxy, GetProxyReturn>({ leasedTime: 3_000 });
-    await cli.sendRequestOnly<ParamGetProxy>({ leasedTime: 3_000 });
-    // log.info(' Клиент получил ответ сервера', p1);
+    const p1: GetProxyReturn = await cli.sendRequestAndResieveAnswer<ParamGetProxy, GetProxyReturn>({
+      leasedTime: 3_000,
+    });
+    log.info(' Клиент получил ответ сервера', p1.userData.uniqueKey);
+
+    // await cli.sendRequestOnly<ParamGetProxy>({ leasedTime: 3_000 });
 
     // log.info(' Клиент получил ответ сервера', p1.userData.uniqueKey);
   }

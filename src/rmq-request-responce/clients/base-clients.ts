@@ -1,7 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { RMQ_construct_exchange } from '../lib/base-req-res.js';
 import { ClientHandler } from '../types/types.js';
-import { delay } from '../../helpers/common.js';
 
 export class RMQ_clientQueryBase extends RMQ_construct_exchange {
   protected internalID = 0;
