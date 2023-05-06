@@ -21,3 +21,11 @@ docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:managem
 This is a managed image of RabbitMQ and you can use this link to manage RMQ (guest/guest credential) 
 http://localhost:15672
 
+
+docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:management
+
+docker network create --scope=swarm --attachable -d overlay my-multihost-network
+
+--ingress		Create swarm routing-mesh network
+
+docker run -itd --network=mynet busybox
