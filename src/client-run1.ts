@@ -18,21 +18,9 @@ async function clientRun() {
 
   // данные пользователя передаются в объекте {params : ....}
   for (let i = 0; i < 10; i++) {
-    // log.debug(' var i', i);
-    const p1: GetProxyReturn = await cli.sendRequestAndResieveAnswer<ParamGetProxy, GetProxyReturn>(
-      proxyRMQnames.getproxy,
-      {
-        leasedTime: 3_000,
-      },
-    );
-
-    log.info(' Клиент получил ответ сервера', p1.userData.uniqueKey);
-
-    // вернуть proxy в пул после использования
-    // await delay(1_000);
-    // cli.sendRequestOnly<ParamReturnProxy>(proxyRMQnames.returnProxy, { uniqueKey: p1.userData.uniqueKey });
-
-    // await cli.sendRequestOnly<ParamGetProxy>({ leasedTime: 3_000 });
+    await cli.sendRequestOnly<ParamGetProxy>(proxyRMQnames.getproxy, { leasedTime: 3_000 });
+    await delay(1_000);
+    // log.info(' Клиент получил ответ сервера', p1.userData.uniqueKey);
   }
   log.info('Запросы на сервер отправлены');
 }

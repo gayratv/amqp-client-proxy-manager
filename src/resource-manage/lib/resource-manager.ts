@@ -150,6 +150,38 @@ export class ResourceManager extends EventEmitter {
     }
   }
 
+  /*
+   * returnResourceByKey
+   * клиент сообщает о возврате ресурса
+   * но фактически ресурс может перейти в статус "свободно" только тогда когда истечет интервал между использованием ресурса
+   */
+  returnResourceByKeyNoAwait(uniqueKey: string | number): Promise<boolean> {
+    if (typeof uniqueKey === 'number') uniqueKey = uniqueKey.toString();
+    const ip = this.proxyIpPool.find((value) => value.uniqueKey === uniqueKey);
+    if (!ip) return;
+
+    const now_ = dayjs();
+    const diffMS = now_.diff(ip.lastUse);
+
+    const markResourceFree = () => {
+      ip.state = 'FREE';
+      this.log.warn('ресурс освобожден uniqueKey: ', uniqueKey);
+      super.emit(RESOURCE_REALIZE, ip); //  сообщаем об освобождении ресурса
+    };
+
+    if (diffMS < confIpManager.TIME_TO_WAIT_BETWEEN_USING) {
+      // подождать завершения установленного интервала
+      setTimeout(() => {
+        markResourceFree();
+      }, confIpManager.TIME_TO_WAIT_BETWEEN_USING - diffMS);
+
+      return;
+    } else {
+      markResourceFree();
+      return;
+    }
+  }
+
   printPool() {
     this.log.info(this.log.sw('Содержимое пула', ['bold', 'blue']));
     this.proxyIpPool.forEach((p) => {

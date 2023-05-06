@@ -19,7 +19,7 @@ export async function fillProxyPool(debug: boolean) {
   // список свободных проверенных proxy
   const sqlBase = `select idProxyList,proxyServer from proxyList where proxyServerBlocked=0 and assignedToProfile is null and checkedForAvito=1`;
   let sql: string = sqlBase;
-  if (debug) sql = sql + ' limit 5';
+  if (debug) sql = sql + ' limit 3';
   const [proxyList, _] = await retriableQuery<proxyServerDB[]>(sql);
   const proxyIpPool = proxyList.map((val) => {
     const p: ProxyObject<Proxy> = {

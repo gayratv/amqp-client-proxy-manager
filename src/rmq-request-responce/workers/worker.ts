@@ -24,11 +24,15 @@ export async function workerBase<P extends Record<any, unknown>, R>(
 
   // const payload: MSGbaseEnquiry = JSON.parse(msg.bodyToString());
   const payload = JSON.parse(msg.bodyToString());
-  log.debug('Получил задание deliveryTag : ', msg.deliveryTag, ' routingKey ', msg.routingKey, msg.bodyToString());
-  // log.debug(msg);
+  // log.debug('Получил задание deliveryTag : ', msg.deliveryTag, ' routingKey ', msg.routingKey, msg.bodyToString());
+  log.debug(
+    'задание routingKey ',
+    log.sw(msg.routingKey, ['bold', 'blue']),
+    'deliveryTag : ',
+    msg.deliveryTag,
+    msg.bodyToString(),
+  );
 
-  // {"leasedTime":3000}
-  // const usefullData = await jobWorker(payload.params as P);
   const usefullData = await jobWorker(payload);
 
   // вернуть полученное значение
@@ -59,7 +63,7 @@ export async function getProxy(params: ParamGetProxy) {
   return await resourceManager.getResource<Proxy>(params.leasedTime);
 }
 
-export async function returnProxy(params: ParamReturnProxy) {
+export function returnProxy(params: ParamReturnProxy) {
   // boolean
-  return await resourceManager.returnResourceByKey(params.uniqueKey);
+  return resourceManager.returnResourceByKeyNoAwait(params.uniqueKey);
 }

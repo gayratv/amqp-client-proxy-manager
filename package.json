@@ -1,5 +1,5 @@
 {
-  "name": "rabbitmq-proxy-manager",
+  "name": "amqp-client-proxy-manager",
   "version": "1.0.0",
   "description": "",
   "type": "module",
@@ -18,7 +18,8 @@
     "pub": "npm publish --public",
     "server-old": "ts-node -r tsconfig-paths/register ./src/localtest/server.test.ts",
     "server": "ts-node  ./src/server-run.ts",
-    "client": "ts-node  ./src/client-run.ts"
+    "client": "ts-node  ./src/client-run.ts",
+    "client1": "ts-node  ./src/client-run1.ts"
   },
   "keywords": [
     "raabitmq",
