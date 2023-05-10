@@ -13,7 +13,8 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "build": "rimraf dist && rimraf tsconfig.tsbuildinfo && node ./scripts/esbuild.js && tsc && rimraf dist/localtest dist/net-socket/helpers ",
+    "build": "rimraf dist dist-es && rimraf tsconfig.tsbuildinfo && node ./scripts/esbuild.js ",
+    "build-template": "rimraf dist && rimraf tsconfig.tsbuildinfo && node ./scripts/esbuild.js && tsc && rimraf dist/localtest dist/net-socket/helpers ",
     "type-check": "tsc -noEmit",
     "pub": "npm publish --public",
     "server-old": "ts-node -r tsconfig-paths/register ./src/localtest/server.test.ts",
@@ -32,19 +33,16 @@
     "access": "public"
   },
   "devDependencies": {
-
     "@types/node": "^18.11.10",
-
     "@types/uuid": "^9.0.1",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
-    "esbuild": "^0.17.9",
+    "esbuild": "^0.17.18",
     "eslint": "^8.29.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
     "prettier": "^2.8.0",
     "rimraf": "^3.0.2",
-
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^3.14.2",
     "tslog-fork": "^4.8.19",

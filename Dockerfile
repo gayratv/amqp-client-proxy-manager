@@ -1,0 +1,16 @@
+FROM node:18
+WORKDIR /node/
+ADD ./dist-es/index.mjs .env ./*.json ./
+
+RUN apt-get update && npm ci --omit=dev
+#RUN #apt-get update && apt-get upgrade -y && npm ci --omit=dev
+
+#RUN apk update
+#RUN apk add curl bash && npm ci --production
+#RUN npm ci --omit=dev
+USER node
+# приложение слушает порт 3020
+#EXPOSE 3020
+CMD ["node", "index.mjs"]
+#CMD ["sh"]
+#CMD ["sleep", "infinity"]

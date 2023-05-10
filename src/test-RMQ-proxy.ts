@@ -34,7 +34,7 @@ async function main() {
   for (let i = 0; i < 4; i++) {
     // log.debug(' var i', i);
     // const p1: GetProxyReturn = await cli.sendRequest<ParamGetProxy, GetProxyReturn>({ leasedTime: 3_000 });
-    await cli.sendRequestOnly<ParamGetProxy>({ leasedTime: 3_000 });
+    await cli.sendRequestOnly<ParamGetProxy>(proxyRMQnames.getproxy, { leasedTime: 3_000 });
     // log.info(' Клиент получил ответ сервера', p1);
 
     // log.info(' Клиент получил ответ сервера', p1.userData.uniqueKey);

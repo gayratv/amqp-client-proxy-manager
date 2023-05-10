@@ -1,3 +1,4 @@
+import './helpers/dotenv-init.js';
 import { proxyRMQnames } from './config/config-rmq.js';
 import { initProxyPool } from './rmq-request-responce/workers/resource-manager-instance.js';
 import { NLog } from 'tslog-fork';
@@ -7,7 +8,7 @@ import { getProxy, returnProxy, workerBase } from './rmq-request-responce/worker
 const log = NLog.getInstance();
 
 async function serverRun() {
-  await initProxyPool();
+  await initProxyPool(Boolean(process.env.DEBUG_POOL));
 
   const srv1 = await RMQ_serverQuery.createRMQ_serverQuery(
     proxyRMQnames.exchange,

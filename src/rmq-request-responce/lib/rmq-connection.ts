@@ -1,4 +1,6 @@
+import '../../helpers/dotenv-init.js';
 import { AMQPClient, AMQPChannel } from '@cloudamqp/amqp-client';
+import * as process from 'process';
 // import {AMQPBaseClient} from "@cloudamqp/amqp-client/src/amqp-base-client.js";
 
 /*
@@ -21,7 +23,7 @@ export class RmqConnection {
   private static async RmqConnection() {
     const rmqConnection = new RmqConnection();
 
-    const amqp = new AMQPClient('amqp://localhost');
+    const amqp = new AMQPClient('amqp://' + process.env.RMQ_HOST);
 
     rmqConnection.connection = (await amqp.connect()) as AMQPClient;
     rmqConnection.channel = await rmqConnection.connection.channel();

@@ -1,4 +1,4 @@
-import tsConfig from './tsconfig.json' assert { type: 'json' };
+import tsConfig from './tsconfig.declare-only2.json' assert { type: 'json' };
 import tsConfigPaths from 'tsconfig-paths';
 
 const baseUrl = './src'; // Either absolute or relative path. If relative it's resolved to current working directory.

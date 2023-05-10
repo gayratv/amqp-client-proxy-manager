@@ -1,31 +1,21 @@
 # RabbitMQ proxy manager
 
-Realize request/response pattern
+Данный модуль реализует request/response pattern
 
-There are many clients sending requests to a single worker.
+Много клиентов шлют параллельные запросы менеджеру.
 
-There is a queue (RabbitMQ) in front of the handler. Requests from clients are placed in the queue. A separate response queue is created for each client (by client itself), the name of the queue is contained in the client's request
+Для избежания блокировок запросы помещаются в очередь RabbitMQ и в последующем обрабатываются по одному для избежания блокировок.
 
-On initialization, client creates a temporary queue which is deleted when client closes the connection to RMQ with these parameters:
-{
-    queue: true,
-    autoDelete: true,
-}
+Каждый клиент на своей стороне создает очередь с уникальным именем в которую обработчик помещает ответы. 
 
-The worker, after processing the request, places the response into the queue created by the client
+На клиенте очередь создается с параметром autodelete
 
-To start project you can use docker on local machine:
+Для проверки работоспособности Вы можете поднять образ RQM на локальной машине 
 
 docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:management
 
-This is a managed image of RabbitMQ and you can use this link to manage RMQ (guest/guest credential) 
+Запускается образ RMQ со встроенным web интерфейсом, для доступа используйте ссылку
+(guest/guest credential)
+
 http://localhost:15672
 
-
-docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:management
-
-docker network create --scope=swarm --attachable -d overlay my-multihost-network
-
---ingress		Create swarm routing-mesh network
-
-docker run -itd --network=mynet busybox
