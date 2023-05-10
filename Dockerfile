@@ -1,6 +1,7 @@
 FROM node:18
 WORKDIR /node/
-ADD ./dist-es/index.mjs .env ./*.json ./
+#ADD ./dist-es/index.mjs .env ./*.json ./
+ADD ./dist-es/index.mjs ./*.json ./
 
 RUN apt-get update && npm ci --omit=dev
 #RUN #apt-get update && apt-get upgrade -y && npm ci --omit=dev
