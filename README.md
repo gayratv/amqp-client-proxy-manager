@@ -25,3 +25,13 @@ http://localhost:15672
 RMQ hots описан в .env файле  process.env.RMQ_HOST
 
 соединение создается одно на клиента src/rmq-request-responce/lib/rmq-connection.ts
+
+### Запуск локально
+
+docker build -t amqp-server .
+
+docker-compose build
+docker compose up -d
+docker compose down
+
+docker run --env-file ./env.list ubuntu bash

@@ -906,8 +906,8 @@ async function initProxyPool(debug = false) {
 }
 
 // src/rmq-request-responce/lib/rmq-connection.ts
-import { AMQPClient } from "@cloudamqp/amqp-client";
-import * as process2 from "process";
+import { AMQPClient } from "amqp-client-fork-gayrat";
+import process3 from "process";
 var _RmqConnection = class {
   connection;
   channel;
@@ -918,8 +918,24 @@ var _RmqConnection = class {
    */
   static async RmqConnection() {
     const rmqConnection = new _RmqConnection();
-    const amqp = new AMQPClient("amqp://" + process2.env.RMQ_HOST);
-    rmqConnection.connection = await amqp.connect();
+    const log4 = NLog.getInstance();
+    log4.info("\u0411\u0443\u0434\u0435\u0442 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D host rmq : ", process3.env.RMQ_HOST);
+    const amqp = new AMQPClient("amqp://" + process3.env.RMQ_HOST);
+    let error = false;
+    let cntRetry = 0;
+    do {
+      try {
+        error = false;
+        rmqConnection.connection = await amqp.connect();
+      } catch (e) {
+        error = true;
+        cntRetry++;
+        log4.warn("RMQ connection problem");
+        await delay(3e3);
+      }
+    } while (error && cntRetry < 10);
+    if (error)
+      process3.exit(105);
     rmqConnection.channel = await rmqConnection.connection.channel();
     rmqConnection.channel.basicQos(1, 0, false);
     return rmqConnection;

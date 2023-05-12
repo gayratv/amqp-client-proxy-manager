@@ -1,8 +1,11 @@
 /// <reference types="node" resolution-mode="require"/>
 declare module "helpers/dotenv-init" { }
+declare module "helpers/common" {
+    export function delay(ms?: number): Promise<unknown>;
+}
 declare module "rmq-request-responce/lib/rmq-connection" {
     import "helpers/dotenv-init";
-    import { AMQPClient, AMQPChannel } from '@cloudamqp/amqp-client';
+    import { AMQPClient, AMQPChannel } from 'amqp-client-fork-gayrat';
     export class RmqConnection {
         connection: AMQPClient;
         channel: AMQPChannel;
@@ -220,9 +223,6 @@ declare module "resource-manage/lib/resource-manager" {
         };
     }
 }
-declare module "helpers/common" {
-    export function delay(ms?: number): Promise<unknown>;
-}
 declare module "helpers/mysql-helper" {
     import "helpers/dotenv-init";
     import { FieldPacket, OkPacket, ResultSetHeader, RowDataPacket } from 'mysql2';
@@ -327,6 +327,7 @@ declare module "server-run" {
 }
 declare module "client-run-tests/client-run" { }
 declare module "client-run-tests/client-run1" { }
+declare module "client-run-tests/connection-test" { }
 declare module "client-run-tests/test-RMQ-proxy" { }
 declare module "resource-manage/test-lib/test1" { }
 declare module "test-amqp-client/t1" { }

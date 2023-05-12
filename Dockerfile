@@ -3,7 +3,7 @@ WORKDIR /node/
 #ADD ./dist-es/index.mjs .env ./*.json ./
 ADD ./dist-es/index.mjs ./*.json ./
 
-RUN apt-get update && npm ci --omit=dev
+RUN apt-get update && apt-get install iputils-ping -y && apt-get install bash -y && npm ci --omit=dev
 #RUN #apt-get update && apt-get upgrade -y && npm ci --omit=dev
 
 #RUN apk update
@@ -12,6 +12,6 @@ RUN apt-get update && npm ci --omit=dev
 USER node
 # приложение слушает порт 3020
 #EXPOSE 3020
-CMD ["node", "index.mjs"]
 #CMD ["sh"]
 #CMD ["sleep", "infinity"]
+CMD ["node", "index.mjs"]

@@ -4,3 +4,4 @@ dist
 .idea
 /esbuild/
 /.env
+/.env_server_local

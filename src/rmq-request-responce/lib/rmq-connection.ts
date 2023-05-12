@@ -1,6 +1,10 @@
 import '../../helpers/dotenv-init.js';
-import { AMQPClient, AMQPChannel } from '@cloudamqp/amqp-client';
-import * as process from 'process';
+// @ts-ignore
+import { AMQPClient, AMQPChannel } from 'amqp-client-fork-gayrat';
+// import { AMQPClient, AMQPChannel } from '@cloudamqp/amqp-client';
+import { NLog } from 'tslog-fork';
+import { delay } from '../../helpers/common.js';
+import process from 'process';
 // import {AMQPBaseClient} from "@cloudamqp/amqp-client/src/amqp-base-client.js";
 
 /*
@@ -22,10 +26,27 @@ export class RmqConnection {
    */
   private static async RmqConnection() {
     const rmqConnection = new RmqConnection();
+    const log = NLog.getInstance();
+    log.info('Будет использован host rmq : ', process.env.RMQ_HOST);
 
     const amqp = new AMQPClient('amqp://' + process.env.RMQ_HOST);
 
-    rmqConnection.connection = (await amqp.connect()) as AMQPClient;
+    let error = false;
+    let cntRetry = 0;
+    do {
+      try {
+        error = false;
+        rmqConnection.connection = (await amqp.connect()) as AMQPClient;
+      } catch (e) {
+        error = true;
+        cntRetry++;
+        log.warn('RMQ connection problem');
+        await delay(3_000);
+      }
+    } while (error && cntRetry < 10);
+
+    if (error) process.exit(105);
+
     rmqConnection.channel = await rmqConnection.connection.channel();
 
     /*

@@ -12,6 +12,19 @@ services:
       - rabbitmq_logs:/var/log/rabbitmq
     networks:
       - app_ingress_network
+  amqp-server:
+    restart: always
+    build:
+      context: .
+        # Имя Docker-файла из которого будет собран образ
+      dockerfile: Dockerfile
+#    image: amqp-server:latest
+    networks:
+      - app_ingress_network
+    env_file:
+    - .env_server_local
+    depends_on:
+      - rabbitmq
 
 
 networks:

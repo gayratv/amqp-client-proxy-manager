@@ -51,7 +51,7 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "amqp-client-fork-gayrat": "^2.1.3",
+    "@cloudamqp/amqp-client": "^2.1.1",
     "dayjs": "^1.11.7",
     "dotenv": "^16.0.3",
     "mysql2": "^3.2.4",
