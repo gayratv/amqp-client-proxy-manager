@@ -3,24 +3,26 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "types": "./dist/net-socket/index.d.ts",
-  "main": "./dist/index.mjs",
-  "module": "./dist/index.mjs",
+  "types": "./dist-client/index.d.ts",
+  "main": "./dist-client/index.mjs",
+  "module": "./dist-client/index.mjs",
   "files": [
-    "dist"
+    "dist-client"
   ],
   "engines": {
     "node": ">=18.0.0"
   },
   "scripts": {
     "build": "rimraf dist dist-es && rimraf tsconfig.tsbuildinfo && node ./scripts/esbuild.js ",
+    "build-client": "rimraf dist-client && rimraf tsconfig.tsbuildinfo && node ./scripts/esbuild-client.js ",
+    "build-client-declaration": "tsc -p ./tsconfig.declaration.json",
     "build-template": "rimraf dist && rimraf tsconfig.tsbuildinfo && node ./scripts/esbuild.js && tsc && rimraf dist/localtest dist/net-socket/helpers ",
     "type-check": "tsc -noEmit",
     "pub": "npm publish --public",
     "server-old": "ts-node -r tsconfig-paths/register ./src/localtest/server.test.ts",
     "server": "ts-node  ./src/server-run.ts",
-    "client": "ts-node  ./src/client-run.ts",
-    "client1": "ts-node  ./src/client-run1.ts"
+    "client": "ts-node  src/client-run-tests/client-run.ts",
+    "client1": "ts-node  src/client-run-tests/client-run1.ts"
   },
   "keywords": [
     "raabitmq",

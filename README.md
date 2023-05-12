@@ -19,3 +19,9 @@ docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:managem
 
 http://localhost:15672
 
+### Настройки
+В директории config - настройки имен очередей
+
+RMQ hots описан в .env файле  process.env.RMQ_HOST
+
+соединение создается одно на клиента src/rmq-request-responce/lib/rmq-connection.ts

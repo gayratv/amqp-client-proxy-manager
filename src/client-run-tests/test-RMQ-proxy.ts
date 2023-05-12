@@ -1,10 +1,10 @@
-import { RMQ_proxyClientQuery } from './rmq-request-responce/clients/clients.js';
-import { proxyRMQnames } from './config/config-rmq.js';
-import { initProxyPool } from './rmq-request-responce/workers/resource-manager-instance.js';
+import { RMQ_proxyClientQuery } from '../rmq-request-responce/clients/clients.js';
+import { proxyRMQnames } from '../config/config-rmq.js';
+import { initProxyPool } from '../rmq-request-responce/workers/resource-manager-instance.js';
 import { NLog } from 'tslog-fork';
-import { RMQ_serverQuery } from './rmq-request-responce/server/server.js';
-import { getProxy, returnProxy, workerBase } from './rmq-request-responce/workers/worker.js';
-import { GetProxyReturn, ParamGetProxy } from './rmq-request-responce/types/types.js';
+import { RMQ_serverQuery } from '../rmq-request-responce/server/server.js';
+import { getProxy, returnProxy, workerBase } from '../rmq-request-responce/workers/worker.js';
+import { GetProxyReturn, ParamGetProxy } from '../rmq-request-responce/types/types.js';
 
 const log = NLog.getInstance();
 

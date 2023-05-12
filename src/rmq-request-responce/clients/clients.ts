@@ -2,7 +2,6 @@ import { RMQ_clientQueryBase } from './base-clients.js';
 import { TIME_WAIT_PROXY_ANSWER } from '../../config/config-rmq.js';
 import { BaseResponce } from '../types/types.js';
 import { AMQPMessage } from '@cloudamqp/amqp-client';
-import { LoggerLevel } from 'tslog-fork';
 
 export class RMQ_proxyClientQuery extends RMQ_clientQueryBase {
   protected registeredCallback = new Map<number, (result?: unknown) => void>();

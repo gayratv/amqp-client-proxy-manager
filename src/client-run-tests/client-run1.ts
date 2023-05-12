@@ -1,8 +1,8 @@
-import { RMQ_proxyClientQuery } from './rmq-request-responce/clients/clients.js';
-import { proxyRMQnames } from './config/config-rmq.js';
+import { RMQ_proxyClientQuery } from '../rmq-request-responce/clients/clients.js';
+import { proxyRMQnames } from '../config/config-rmq.js';
 import { NLog } from 'tslog-fork';
-import { GetProxyReturn, ParamGetProxy, ParamReturnProxy } from './rmq-request-responce/types/types.js';
-import { delay } from './helpers/common.js';
+import { GetProxyReturn, ParamGetProxy, ParamReturnProxy } from '../rmq-request-responce/types/types.js';
+import { delay } from '../helpers/common.js';
 
 const log = NLog.getInstance();
 
