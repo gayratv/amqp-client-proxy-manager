@@ -21,7 +21,7 @@ export class ProxyGet {
   }
 
   async getProxy(leasedTime: number) {
-    return this.instanceRMQ_proxyClientQuery.sendRequestAndResieveAnswer<ParamGetProxy, GetProxyReturn>(
+    return await this.instanceRMQ_proxyClientQuery.sendRequestAndResieveAnswer<ParamGetProxy, GetProxyReturn>(
       proxyRMQnames.getproxy,
       {
         leasedTime,

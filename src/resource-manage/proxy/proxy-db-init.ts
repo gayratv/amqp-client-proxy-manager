@@ -16,6 +16,7 @@ interface proxyServerDB extends RowDataPacket {
  */
 export async function fillProxyPool(debug: boolean) {
   const log = NLog.getInstance();
+  log.info('fillProxyPool debug ', debug);
   // список свободных проверенных proxy
   const sqlBase = `select idProxyList,proxyServer from proxyList where proxyServerBlocked=0 and assignedToProfile is null and checkedForAvito=1`;
   let sql: string = sqlBase;

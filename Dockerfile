@@ -1,9 +1,10 @@
-FROM node:18
+FROM node:18-alpine
 WORKDIR /node/
 #ADD ./dist-es/index.mjs .env ./*.json ./
 ADD ./dist-es/index.mjs ./*.json ./
 
-RUN apt-get update && apt-get install iputils-ping -y && apt-get install bash -y && npm ci --omit=dev
+RUN npm ci --omit=dev
+#RUN apt-get update && apt-get install iputils-ping -y && apt-get install bash -y && npm ci --omit=dev
 #RUN #apt-get update && apt-get upgrade -y && npm ci --omit=dev
 
 #RUN apk update

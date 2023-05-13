@@ -8,8 +8,9 @@ import { getProxy, returnProxy, workerBase } from './rmq-request-responce/worker
 const log = NLog.getInstance();
 
 async function serverRun() {
-  await initProxyPool(Boolean(process.env.DEBUG_POOL));
-
+  const debug = process.env.DEBUG_POOL === 'true' ? true : false;
+  log.info('serverRun debug ', debug);
+  await initProxyPool(debug);
   const srv1 = await RMQ_serverQuery.createRMQ_serverQuery(
     proxyRMQnames.exchange,
     proxyRMQnames.getproxy,
