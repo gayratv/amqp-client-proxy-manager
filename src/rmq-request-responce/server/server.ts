@@ -1,6 +1,6 @@
 import { RMQ_construct_exchange } from '../lib/base-req-res.js';
 import { JobWorker, Worker } from '../types/types.js';
-import { AMQPQueue } from '@cloudamqp/amqp-client';
+import { AMQPQueue } from 'amqp-client-fork-gayrat';
 
 /*
  * принимает запрос по queue и отправляет ответ в очередь, указанную в msg

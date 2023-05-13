@@ -5,7 +5,7 @@ import { NLog } from 'tslog-fork';
 import { resourceManager } from './resource-manager-instance.js';
 import { Proxy } from '../../resource-manage/types/Database.js';
 import { delay } from '../../helpers/common.js';
-import { AMQPMessage } from '@cloudamqp/amqp-client';
+import { AMQPMessage } from 'amqp-client-fork-gayrat';
 
 const log = NLog.getInstance();
 let messageID = 0;

@@ -1,6 +1,6 @@
 import { NLog } from 'tslog-fork';
 import { RmqConnection } from './rmq-connection.js';
-import { AMQPChannel, AMQPClient } from '@cloudamqp/amqp-client';
+import { AMQPChannel, AMQPClient } from 'amqp-client-fork-gayrat';
 
 /*
  * порядок использования

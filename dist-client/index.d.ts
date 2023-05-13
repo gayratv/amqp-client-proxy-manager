@@ -18,7 +18,7 @@ declare module "rmq-request-responce/lib/rmq-connection" {
 }
 declare module "rmq-request-responce/lib/base-req-res" {
     import { NLog } from 'tslog-fork';
-    import { AMQPChannel, AMQPClient } from '@cloudamqp/amqp-client';
+    import { AMQPChannel, AMQPClient } from 'amqp-client-fork-gayrat';
     export class RMQ_construct_exchange {
         exchange: string;
         queueInputName: string;
@@ -247,7 +247,7 @@ declare module "rmq-request-responce/types/types" {
     import { Proxy } from "resource-manage/types/Database";
     import { ProxyObject } from "resource-manage/index";
     import { RMQ_proxyClientQuery } from "rmq-request-responce/clients/clients";
-    import { AMQPMessage } from '@cloudamqp/amqp-client';
+    import { AMQPMessage } from 'amqp-client-fork-gayrat';
     export interface MSGbaseEnquiry<Parm extends Record<string, unknown> = {}> {
         responseQueueName: string;
         internalID?: number;
@@ -303,33 +303,8 @@ declare module "rmq-request-responce/clients/clients" {
         sendRequestOnly<Tquery_param = Record<string, any>>(routingKey: string, params?: Tquery_param): Promise<void>;
     }
 }
-declare module "index-client" {
+declare module "amqp-client-proxy-manager" {
     export { RMQ_proxyClientQuery } from "rmq-request-responce/clients/clients";
     export { proxyRMQnames } from "config/config-rmq";
     export type { GetProxyReturn, ParamGetProxy, ParamReturnProxy } from "rmq-request-responce/types/types";
 }
-declare module "rmq-request-responce/workers/resource-manager-instance" {
-    import { ResourceManager } from "resource-manage/index";
-    export const resourceManager: ResourceManager;
-    export function initProxyPool(debug?: boolean): Promise<void>;
-}
-declare module "rmq-request-responce/workers/worker" {
-    import { JobWorker, ParamGetProxy, ParamReturnProxy } from "rmq-request-responce/types/types";
-    import { RMQ_serverQuery } from "rmq-request-responce/server/server";
-    import { Proxy } from "resource-manage/types/Database";
-    import { AMQPMessage } from '@cloudamqp/amqp-client';
-    export function workerBase<P extends Record<any, unknown>, R>(this: RMQ_serverQuery, jobWorker: JobWorker<P, R>, type: string, msg: AMQPMessage): Promise<void>;
-    export function getProxy(params: ParamGetProxy): Promise<import("resource-manage").ProxyObject<Proxy>>;
-    export function returnProxy(params: ParamReturnProxy): Promise<boolean>;
-}
-declare module "server-run" {
-    import "helpers/dotenv-init";
-}
-declare module "client-run-tests/client-run" { }
-declare module "client-run-tests/client-run1" { }
-declare module "client-run-tests/connection-test" { }
-declare module "client-run-tests/test-RMQ-proxy" { }
-declare module "resource-manage/test-lib/test1" { }
-declare module "test-amqp-client/t1" { }
-declare module "test-amqp-client/t2" { }
-declare module "test-amqp-client/t3" { }

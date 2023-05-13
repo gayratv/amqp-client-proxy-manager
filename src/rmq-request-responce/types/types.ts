@@ -3,7 +3,7 @@ import { RMQ_serverQuery } from '../server/server.js';
 import { Proxy } from '../../resource-manage/types/Database.js';
 import { ProxyObject } from '../../resource-manage/index.js';
 import { RMQ_proxyClientQuery } from '../clients/clients.js';
-import { AMQPMessage } from '@cloudamqp/amqp-client';
+import { AMQPMessage } from 'amqp-client-fork-gayrat';
 
 export interface MSGbaseEnquiry<Parm extends Record<string, unknown> = {}> {
   responseQueueName: string; // имя очереди для ответа

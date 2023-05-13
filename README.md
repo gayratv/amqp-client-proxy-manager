@@ -27,11 +27,27 @@ RMQ hots описан в .env файле  process.env.RMQ_HOST
 соединение создается одно на клиента src/rmq-request-responce/lib/rmq-connection.ts
 
 ### Запуск локально
+Для локального запускак предназначен файл docker-compose.yml
+
+Запись
+```
+    env_file:
+    - .env_server_local
+```
+Заставляет dcoker compose разместить в process.env переменные заданные в файле
+
+```bash
+docker compose up -d
+```
+```bash
+docker compose down
+```
+
+### Полезные команды
+Показать текущие переменные
+```node --print 'process.env'```
 
 docker build -t amqp-server .
 
-docker-compose build
-docker compose up -d
-docker compose down
 
 docker run --env-file ./env.list ubuntu bash

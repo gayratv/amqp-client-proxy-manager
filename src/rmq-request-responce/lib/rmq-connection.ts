@@ -1,5 +1,4 @@
 import '../../helpers/dotenv-init.js';
-// @ts-ignore
 import { AMQPClient, AMQPChannel } from 'amqp-client-fork-gayrat';
 // import { AMQPClient, AMQPChannel } from '@cloudamqp/amqp-client';
 import { NLog } from 'tslog-fork';
@@ -43,7 +42,7 @@ export class RmqConnection {
         log.warn('RMQ connection problem');
         await delay(3_000);
       }
-    } while (error && cntRetry < 10);
+    } while (error && cntRetry < 2);
 
     if (error) process.exit(105);
 

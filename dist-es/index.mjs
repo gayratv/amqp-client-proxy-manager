@@ -933,7 +933,7 @@ var _RmqConnection = class {
         log4.warn("RMQ connection problem");
         await delay(3e3);
       }
-    } while (error && cntRetry < 10);
+    } while (error && cntRetry < 2);
     if (error)
       process3.exit(105);
     rmqConnection.channel = await rmqConnection.connection.channel();
