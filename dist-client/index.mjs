@@ -750,14 +750,6 @@ var RMQ_proxyClientQuery = class extends RMQ_clientQueryBase {
   // от сервера поступили ответы на запросы - надо с ними как то поступить
   handleResponse = async (msg) => {
     const result = JSON.parse(msg.bodyToString());
-    this.log.debug(
-      "\u041F\u043E\u043B\u0443\u0447\u0435\u043D \u043E\u0442\u0432\u0435\u0442 \u043E\u0442 \u0441\u0435\u0440\u0432\u0435\u0440\u0430  deliveryTag:",
-      msg.deliveryTag,
-      " correlationId ",
-      msg.properties.correlationId,
-      " BaseResponce ",
-      msg.bodyToString()
-    );
     await this.channel.basicAck(msg.deliveryTag);
     if (msg.properties.correlationId != null) {
       const id = parseInt(msg.properties.correlationId, 10);
@@ -806,7 +798,6 @@ var RMQ_proxyClientQuery = class extends RMQ_clientQueryBase {
       timestamp: /* @__PURE__ */ new Date(),
       type: "getProxy"
     });
-    this.log.info("\u0417\u0430\u043F\u0440\u043E\u0441 correlationId", internalID);
   }
 };
 export {
