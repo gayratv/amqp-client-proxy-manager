@@ -13,7 +13,7 @@ const sharedConfig = {
 console.log(sharedConfig);
 
 build({
-  entryPoints: ['./src/index-client.ts'],
+  entryPoints: ['./src/amqp-client-proxy-manager.ts'],
   // outdir: 'esbuild',
   outfile: './dist-client/index.mjs',
   format: 'esm',
