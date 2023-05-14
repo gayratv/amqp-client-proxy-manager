@@ -3,6 +3,7 @@ import { JobWorker, Worker } from '../types/types.js';
 import { AMQPQueue } from 'amqp-client-fork-gayrat';
 
 /*
+ * @internal
  * принимает запрос по queue и отправляет ответ в очередь, указанную в msg
  */
 export class RMQ_serverQuery extends RMQ_construct_exchange {

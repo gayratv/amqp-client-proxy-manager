@@ -1,6 +1,6 @@
 {
   "name": "amqp-client-proxy-manager",
-  "version": "1.0.7",
+  "version": "1.0.9",
   "description": "",
   "type": "module",
   "types": "./dist-client/index.d.ts",
@@ -16,6 +16,7 @@
     "build-server": "rimraf dist dist-es && rimraf tsconfig.tsbuildinfo && node ./scripts/esbuild.js ",
     "build-client": "rimraf dist-client && rimraf tsconfig.tsbuildinfo && node ./scripts/esbuild-client.js ",
     "build-client-declaration": "tsc -p ./tsconfig.declaration.json",
+    "build-client-esm": "tsc -p ./tsconfig.esm.json",
     "build-template": "rimraf dist && rimraf tsconfig.tsbuildinfo && node ./scripts/esbuild.js && tsc && rimraf dist/localtest dist/net-socket/helpers ",
     "type-check": "tsc -noEmit",
     "pub": "npm publish --public",

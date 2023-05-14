@@ -4,20 +4,21 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "rootDir": "./src",
-    "outFile": "./dist-client/index.d.ts",
+//    "outFile": "./dist-client/index.d.ts",
+    "outDir": "./dist-client-esm/",
     "resolveJsonModule": true,
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
+//    "strict": true,
+    "stripInternal": true, // Disable emitting declarations that have `@internal` in their JSDoc comments.
     "sourceMap": true,
     "noImplicitAny": true,
-    "stripInternal": true, // Disable emitting declarations that have `@internal` in their JSDoc comments.
     "skipLibCheck": true,
     "isolatedModules": false,
     "esModuleInterop": true , // Emit additional JavaScript to ease support for importing CommonJS modules. This enables `allowSyntheticDefaultImports` for type compatibility.
     "typeRoots": ["./node_modules/@types", "./types","types"],
     "declaration": true,
 
-    "emitDeclarationOnly": true,
     "baseUrl": "src",
   },
   "include": ["src/amqp-client-proxy-manager.ts"],

@@ -868,5 +868,7 @@ async function returnProxy(uniqueKey) {
 export {
   ProxyGet,
   RMQ_proxyClientQuery,
-  proxyRMQnames
+  getProxy,
+  proxyRMQnames,
+  returnProxy
 };
