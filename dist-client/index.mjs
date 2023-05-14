@@ -800,7 +800,60 @@ var RMQ_proxyClientQuery = class extends RMQ_clientQueryBase {
     });
   }
 };
+
+// src/rmq-request-responce/clients/proxy-get.ts
+var ProxyGet = class {
+  instanceRMQ_proxyClientQuery;
+  instance;
+  constructor() {
+  }
+  static async getInstance() {
+    const pget = new ProxyGet();
+    pget.instance = pget;
+    const cli = await RMQ_proxyClientQuery.createRMQ_clientQuery(
+      proxyRMQnames.exchange,
+      proxyRMQnames.getproxy,
+      proxyRMQnames.getproxy
+    );
+    pget.instanceRMQ_proxyClientQuery = cli;
+    return pget;
+  }
+  async getProxy(leasedTime) {
+    const res = await this.instanceRMQ_proxyClientQuery.sendRequestAndResieveAnswer(
+      proxyRMQnames.getproxy,
+      {
+        leasedTime
+      }
+    );
+    return { proxy: res.userData.userData, uniqueKey: res.userData.uniqueKey };
+  }
+  /*
+  пример ответа
+  p1.userData.uniqueKey
+  
+  { userData:
+     { userData:
+        { server: 'http://104.239.80.193:5771', password: '[***]', username: 'wmdzslaf' },
+       uniqueKey: '6',
+       lastUse: '2023-05-13T18:36:07.796Z',
+       state: 'USING',
+       orderPos: 4,
+       leasedTime: 3000
+       }
+     }
+  
+   */
+  /*
+    возврат в код происходит почти мгновенно
+   */
+  async returnProxy(uniqueKey) {
+    this.instanceRMQ_proxyClientQuery.sendRequestOnly(proxyRMQnames.returnProxy, {
+      uniqueKey
+    });
+  }
+};
 export {
+  ProxyGet,
   RMQ_proxyClientQuery,
   proxyRMQnames
 };

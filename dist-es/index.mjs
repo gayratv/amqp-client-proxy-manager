@@ -684,6 +684,7 @@ createConnectionA();
 import dayjs2 from "dayjs";
 async function fillProxyPool(debug) {
   const log4 = NLog.getInstance();
+  log4.info("fillProxyPool debug ", debug);
   const sqlBase = `select idProxyList,proxyServer from proxyList where proxyServerBlocked=0 and assignedToProfile is null and checkedForAvito=1`;
   let sql = sqlBase;
   if (debug)
@@ -1045,7 +1046,9 @@ function returnProxy(params) {
 // src/server-run.ts
 var log3 = NLog.getInstance();
 async function serverRun() {
-  await initProxyPool(Boolean(process.env.DEBUG_POOL));
+  const debug = process.env.DEBUG_POOL === "true" ? true : false;
+  log3.info("serverRun debug ", debug);
+  await initProxyPool(debug);
   const srv1 = await RMQ_serverQuery.createRMQ_serverQuery(
     proxyRMQnames.exchange,
     proxyRMQnames.getproxy,

@@ -1,8 +1,9 @@
 import { RMQ_proxyClientQuery } from './clients.js';
 import { proxyRMQnames } from '../../config/config-rmq.js';
 import { GetProxyReturn, ParamGetProxy, ParamReturnProxy } from '../types/types.js';
+import { ErrType, GetProxyClient, IProxyManager } from '../types/proxy-manager-interface.js';
 
-export class ProxyGet {
+export class ProxyGet implements IProxyManager {
   private instanceRMQ_proxyClientQuery: RMQ_proxyClientQuery;
   private instance: ProxyGet;
   private constructor() {}
@@ -20,13 +21,14 @@ export class ProxyGet {
     return pget;
   }
 
-  async getProxy(leasedTime: number) {
-    return await this.instanceRMQ_proxyClientQuery.sendRequestAndResieveAnswer<ParamGetProxy, GetProxyReturn>(
+  async getProxy(leasedTime: number): Promise<GetProxyClient | ErrType> {
+    const res = await this.instanceRMQ_proxyClientQuery.sendRequestAndResieveAnswer<ParamGetProxy, GetProxyReturn>(
       proxyRMQnames.getproxy,
       {
         leasedTime,
       },
     );
+    return { proxy: res.userData.userData, uniqueKey: res.userData.uniqueKey };
   }
   /*
 пример ответа
@@ -48,9 +50,9 @@ p1.userData.uniqueKey
   /*
     возврат в код происходит почти мгновенно
    */
-  async returnProxy(p1: GetProxyReturn) {
+  async returnProxy(uniqueKey: string) {
     this.instanceRMQ_proxyClientQuery.sendRequestOnly<ParamReturnProxy>(proxyRMQnames.returnProxy, {
-      uniqueKey: p1.userData.uniqueKey,
+      uniqueKey,
     });
   }
 }
