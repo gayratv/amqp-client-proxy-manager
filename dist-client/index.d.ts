@@ -303,6 +303,7 @@ declare module 'rmq-request-responce/clients/base-clients' {
 }
 declare module 'config/config-rmq' {
   export const TIME_WAIT_PROXY_ANSWER = 15000;
+  export const TIME_LEASED_PROXY_DEFAULT = 3000;
   export const proxyRMQnames: {
     exchange: string;
     getproxy: string;
@@ -350,13 +351,15 @@ declare module 'rmq-request-responce/types/proxy-manager-interface' {
 declare module 'rmq-request-responce/clients/proxy-get' {
   import { ErrType, GetProxyClient, IProxyManager } from 'rmq-request-responce/types/proxy-manager-interface';
   export class ProxyGet implements IProxyManager {
-    private instanceRMQ_proxyClientQuery;
-    private instance;
+    private static instanceRMQ_proxyClientQuery;
+    private static instance;
     private constructor();
     static getInstance(): Promise<ProxyGet>;
     getProxy(leasedTime: number): Promise<GetProxyClient | ErrType>;
     returnProxy(uniqueKey: string): Promise<void>;
   }
+  export function getProxy(leasedTime?: number): Promise<GetProxyClient | ErrType>;
+  export function returnProxy(uniqueKey: string): Promise<void>;
 }
 declare module 'amqp-client-proxy-manager' {
   export { RMQ_proxyClientQuery } from 'rmq-request-responce/clients/clients';

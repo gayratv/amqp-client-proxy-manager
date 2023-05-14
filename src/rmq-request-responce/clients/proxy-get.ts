@@ -1,28 +1,33 @@
 import { RMQ_proxyClientQuery } from './clients.js';
-import { proxyRMQnames } from '../../config/config-rmq.js';
+import { proxyRMQnames, TIME_LEASED_PROXY_DEFAULT } from '../../config/config-rmq.js';
 import { GetProxyReturn, ParamGetProxy, ParamReturnProxy } from '../types/types.js';
 import { ErrType, GetProxyClient, IProxyManager } from '../types/proxy-manager-interface.js';
 
 export class ProxyGet implements IProxyManager {
-  private instanceRMQ_proxyClientQuery: RMQ_proxyClientQuery;
-  private instance: ProxyGet;
+  private static instanceRMQ_proxyClientQuery: RMQ_proxyClientQuery = null;
+  private static instance: ProxyGet = null;
+
+  // конструктор нельзя вызвать
   private constructor() {}
+
   static async getInstance() {
+    if (ProxyGet.instance) return ProxyGet.instance;
+
     const pget = new ProxyGet();
-    pget.instance = pget;
+    ProxyGet.instance = pget;
 
     const cli = await RMQ_proxyClientQuery.createRMQ_clientQuery(
       proxyRMQnames.exchange,
       proxyRMQnames.getproxy,
       proxyRMQnames.getproxy,
     );
-    pget.instanceRMQ_proxyClientQuery = cli;
+    ProxyGet.instanceRMQ_proxyClientQuery = cli;
 
     return pget;
   }
 
   async getProxy(leasedTime: number): Promise<GetProxyClient | ErrType> {
-    const res = await this.instanceRMQ_proxyClientQuery.sendRequestAndResieveAnswer<ParamGetProxy, GetProxyReturn>(
+    const res = await ProxyGet.instanceRMQ_proxyClientQuery.sendRequestAndResieveAnswer<ParamGetProxy, GetProxyReturn>(
       proxyRMQnames.getproxy,
       {
         leasedTime,
@@ -51,8 +56,18 @@ p1.userData.uniqueKey
     возврат в код происходит почти мгновенно
    */
   async returnProxy(uniqueKey: string) {
-    this.instanceRMQ_proxyClientQuery.sendRequestOnly<ParamReturnProxy>(proxyRMQnames.returnProxy, {
+    ProxyGet.instanceRMQ_proxyClientQuery.sendRequestOnly<ParamReturnProxy>(proxyRMQnames.returnProxy, {
       uniqueKey,
     });
   }
+}
+
+export async function getProxy(leasedTime = TIME_LEASED_PROXY_DEFAULT) {
+  const inst = await ProxyGet.getInstance();
+  return inst.getProxy(leasedTime);
+}
+
+export async function returnProxy(uniqueKey: string): Promise<void> {
+  const inst = await ProxyGet.getInstance();
+  return inst.returnProxy(uniqueKey);
 }

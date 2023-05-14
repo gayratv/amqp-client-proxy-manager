@@ -712,6 +712,7 @@ var RMQ_clientQueryBase = class extends RMQ_construct_exchange {
 
 // src/config/config-rmq.ts
 var TIME_WAIT_PROXY_ANSWER = 15e3;
+var TIME_LEASED_PROXY_DEFAULT = 3e3;
 var proxyRMQnames = {
   exchange: "proxy.exchange",
   // имена очередей для запросов
@@ -802,24 +803,25 @@ var RMQ_proxyClientQuery = class extends RMQ_clientQueryBase {
 };
 
 // src/rmq-request-responce/clients/proxy-get.ts
-var ProxyGet = class {
-  instanceRMQ_proxyClientQuery;
-  instance;
+var _ProxyGet = class {
+  // конструктор нельзя вызвать
   constructor() {
   }
   static async getInstance() {
-    const pget = new ProxyGet();
-    pget.instance = pget;
+    if (_ProxyGet.instance)
+      return _ProxyGet.instance;
+    const pget = new _ProxyGet();
+    _ProxyGet.instance = pget;
     const cli = await RMQ_proxyClientQuery.createRMQ_clientQuery(
       proxyRMQnames.exchange,
       proxyRMQnames.getproxy,
       proxyRMQnames.getproxy
     );
-    pget.instanceRMQ_proxyClientQuery = cli;
+    _ProxyGet.instanceRMQ_proxyClientQuery = cli;
     return pget;
   }
   async getProxy(leasedTime) {
-    const res = await this.instanceRMQ_proxyClientQuery.sendRequestAndResieveAnswer(
+    const res = await _ProxyGet.instanceRMQ_proxyClientQuery.sendRequestAndResieveAnswer(
       proxyRMQnames.getproxy,
       {
         leasedTime
@@ -847,11 +849,22 @@ var ProxyGet = class {
     возврат в код происходит почти мгновенно
    */
   async returnProxy(uniqueKey) {
-    this.instanceRMQ_proxyClientQuery.sendRequestOnly(proxyRMQnames.returnProxy, {
+    _ProxyGet.instanceRMQ_proxyClientQuery.sendRequestOnly(proxyRMQnames.returnProxy, {
       uniqueKey
     });
   }
 };
+var ProxyGet = _ProxyGet;
+__publicField(ProxyGet, "instanceRMQ_proxyClientQuery", null);
+__publicField(ProxyGet, "instance", null);
+async function getProxy(leasedTime = TIME_LEASED_PROXY_DEFAULT) {
+  const inst = await ProxyGet.getInstance();
+  return inst.getProxy(leasedTime);
+}
+async function returnProxy(uniqueKey) {
+  const inst = await ProxyGet.getInstance();
+  return inst.returnProxy(uniqueKey);
+}
 export {
   ProxyGet,
   RMQ_proxyClientQuery,
