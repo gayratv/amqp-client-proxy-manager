@@ -857,18 +857,8 @@ var _ProxyGet = class {
 var ProxyGet = _ProxyGet;
 __publicField(ProxyGet, "instanceRMQ_proxyClientQuery", null);
 __publicField(ProxyGet, "instance", null);
-async function getProxy(leasedTime = TIME_LEASED_PROXY_DEFAULT) {
-  const inst = await ProxyGet.getInstance();
-  return inst.getProxy(leasedTime);
-}
-async function returnProxy(uniqueKey) {
-  const inst = await ProxyGet.getInstance();
-  return inst.returnProxy(uniqueKey);
-}
 export {
   ProxyGet,
   RMQ_proxyClientQuery,
-  getProxy,
-  proxyRMQnames,
-  returnProxy
+  proxyRMQnames
 };

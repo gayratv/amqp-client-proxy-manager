@@ -62,6 +62,10 @@ p1.userData.uniqueKey
   }
 }
 
+/*
+
+имплементируем к клиентском коде
+
 export async function getProxy(leasedTime = TIME_LEASED_PROXY_DEFAULT) {
   const inst = await ProxyGet.getInstance();
   return inst.getProxy(leasedTime);
@@ -71,3 +75,4 @@ export async function returnProxy(uniqueKey: string): Promise<void> {
   const inst = await ProxyGet.getInstance();
   return inst.returnProxy(uniqueKey);
 }
+*/

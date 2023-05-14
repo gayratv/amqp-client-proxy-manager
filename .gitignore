@@ -5,3 +5,4 @@ dist
 /esbuild/
 /.env
 /.env_server_local
+/dist-client-esm/

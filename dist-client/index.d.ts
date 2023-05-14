@@ -321,13 +321,11 @@ declare module "rmq-request-responce/clients/proxy-get" {
         getProxy(leasedTime: number): Promise<GetProxyClient | ErrType>;
         returnProxy(uniqueKey: string): Promise<void>;
     }
-    export function getProxy(leasedTime?: number): Promise<GetProxyClient | ErrType>;
-    export function returnProxy(uniqueKey: string): Promise<void>;
 }
 declare module "amqp-client-proxy-manager" {
     export { RMQ_proxyClientQuery } from "rmq-request-responce/clients/clients";
     export { proxyRMQnames } from "config/config-rmq";
-    export { ProxyGet, getProxy, returnProxy } from "rmq-request-responce/clients/proxy-get";
+    export { ProxyGet } from "rmq-request-responce/clients/proxy-get";
     export type { GetProxyReturn, ParamGetProxy, ParamReturnProxy } from "rmq-request-responce/types/types";
     export type { Proxy, GetProxyClient, IProxyManager, ErrType, } from "rmq-request-responce/types/proxy-manager-interface";
 }
