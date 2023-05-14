@@ -1,5 +1,6 @@
 /// <reference types="node" resolution-mode="require"/>
 declare module 'rmq-request-responce/lib/rmq-connection' {
+  import 'helpers/dotenv-init';
   import { AMQPClient, AMQPChannel } from 'amqp-client-fork-gayrat';
   export class RmqConnection {
     connection: AMQPClient;
@@ -329,7 +330,7 @@ declare module 'rmq-request-responce/clients/clients' {
   }
 }
 declare module 'rmq-request-responce/types/proxy-manager-interface' {
-  interface Proxy {
+  export interface Proxy {
     server: string;
     username: string;
     password: string;
@@ -362,4 +363,10 @@ declare module 'amqp-client-proxy-manager' {
   export { proxyRMQnames } from 'config/config-rmq';
   export { ProxyGet } from 'rmq-request-responce/clients/proxy-get';
   export type { GetProxyReturn, ParamGetProxy, ParamReturnProxy } from 'rmq-request-responce/types/types';
+  export type {
+    Proxy,
+    GetProxyClient,
+    IProxyManager,
+    ErrType,
+  } from 'rmq-request-responce/types/proxy-manager-interface';
 }

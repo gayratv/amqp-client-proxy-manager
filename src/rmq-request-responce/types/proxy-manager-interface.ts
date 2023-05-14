@@ -1,4 +1,4 @@
-interface Proxy {
+export interface Proxy {
   server: string;
   username: string;
   password: string;
