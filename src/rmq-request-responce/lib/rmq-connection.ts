@@ -13,18 +13,28 @@ import process from 'process';
  */
 
 export class RmqConnection {
-  public connection: AMQPClient;
-  public channel: AMQPChannel;
-
-  private static instance: RmqConnection;
+  public static connection: AMQPClient = null;
+  public static channel: AMQPChannel = null;
+  public static initializationState = 'start';
+  public static initializationQueue: Array<unknown> = [];
 
   private constructor() {}
 
   /*
    * инициализирует connection + chanel
    */
-  private static async RmqConnection() {
-    const rmqConnection = new RmqConnection();
+  private static async RmqConnection(): Promise<void> {
+    if (RmqConnection.connection) return; // connection установлен
+
+    if (RmqConnection.initializationState === 'working') {
+      return new Promise((resolve, reject) => {
+        RmqConnection.initializationQueue.push(resolve);
+      });
+    }
+
+    RmqConnection.initializationState = 'working';
+
+    // const rmqConnection = new RmqConnection();
     const log = NLog.getInstance();
     log.info('Будет использован host rmq : ', process.env.RMQ_HOST);
 
@@ -35,7 +45,7 @@ export class RmqConnection {
     do {
       try {
         error = false;
-        rmqConnection.connection = (await amqp.connect()) as AMQPClient;
+        RmqConnection.connection = (await amqp.connect()) as AMQPClient;
       } catch (e) {
         error = true;
         cntRetry++;
@@ -46,27 +56,30 @@ export class RmqConnection {
 
     if (error) process.exit(105);
 
-    rmqConnection.channel = await rmqConnection.connection.channel();
+    RmqConnection.channel = await RmqConnection.connection.channel();
 
     /*
      * установить что выбирается только одно сообщение за раз
      * global: boolean – if the prefetch is limited to the channel, or if false to each consumer
      */
 
-    rmqConnection.channel.basicQos(1, 0, false);
-
-    return rmqConnection;
+    RmqConnection.channel.basicQos(1, 0, false);
+    RmqConnection.initializationQueue.forEach((calbackFn) => {
+      log.debug('RmqConnection initialization done, calbackFn calles');
+      // @ts-ignore
+      calbackFn(null);
+    });
   }
 
   static async getInstance() {
-    if (!RmqConnection.instance) {
-      RmqConnection.instance = await RmqConnection.RmqConnection();
+    if (!RmqConnection.connection) {
+      await RmqConnection.RmqConnection();
     }
-    return RmqConnection.instance;
+    // return RmqConnection.channel;
   }
 
-  async closeConnection() {
-    if (!RmqConnection.instance) return;
-    await this.connection.close();
+  static async closeConnection() {
+    if (!RmqConnection.connection) return;
+    await RmqConnection.connection.close();
   }
 }

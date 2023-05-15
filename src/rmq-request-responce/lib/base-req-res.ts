@@ -18,10 +18,11 @@ export class RMQ_construct_exchange {
    * инициализирует exchange типа direct
    */
   async createRMQ_construct_exchange() {
-    const rcon = await RmqConnection.getInstance();
-    this.connection = rcon.connection;
-    this.channel = rcon.channel;
+    // const rcon = await RmqConnection.getInstance();
+    await RmqConnection.getInstance();
+    this.connection = RmqConnection.connection;
+    this.channel = RmqConnection.channel;
 
-    await rcon.channel.exchangeDeclare(this.exchange, 'direct', { durable: false });
+    await RmqConnection.channel.exchangeDeclare(this.exchange, 'direct', { durable: false });
   }
 }

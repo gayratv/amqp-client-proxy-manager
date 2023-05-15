@@ -58,7 +58,7 @@ export class RMQ_proxyClientQuery extends RMQ_clientQueryBase {
   };
 
   /*
-   * послать сообщение  обработчику и получить ответ
+   * послать сообщение обработчику и получить ответ
    * params если определен - то должен быть объектом с ключом
    */
   async sendRequestAndResieveAnswer<Tquery_param = Record<string, any>, TreturnResult = unknown>(
@@ -67,9 +67,7 @@ export class RMQ_proxyClientQuery extends RMQ_clientQueryBase {
   ): Promise<TreturnResult> {
     const internalID = this.internalID++;
 
-    const msg = params;
-
-    await this.channel.basicPublish(this.exchange, routingKey, JSON.stringify(msg), {
+    await this.channel.basicPublish(this.exchange, routingKey, JSON.stringify(params), {
       deliveryMode: 1,
       correlationId: internalID.toString(),
       replyTo: this.responceQueueName,

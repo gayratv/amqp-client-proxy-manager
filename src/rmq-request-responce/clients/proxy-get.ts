@@ -3,18 +3,19 @@ import { proxyRMQnames, TIME_LEASED_PROXY_DEFAULT } from '../../config/config-rm
 import { GetProxyReturn, ParamGetProxy, ParamReturnProxy } from '../types/types.js';
 import { ErrType, GetProxyClient, IProxyManager } from '../types/proxy-manager-interface.js';
 
-export class ProxyGet implements IProxyManager {
-  private static instanceRMQ_proxyClientQuery: RMQ_proxyClientQuery = null;
-  private static instance: ProxyGet = null;
+export class ProxyGet {
+  // export class ProxyGet implements IProxyManager {
+  static instanceRMQ_proxyClientQuery: RMQ_proxyClientQuery = null;
+  // static instance: ProxyGet = null;
 
   // конструктор нельзя вызвать
   private constructor() {}
 
   static async getInstance() {
-    if (ProxyGet.instance) return ProxyGet.instance;
+    if (ProxyGet.instanceRMQ_proxyClientQuery) return ProxyGet.instanceRMQ_proxyClientQuery;
 
-    const pget = new ProxyGet();
-    ProxyGet.instance = pget;
+    // const pget = new ProxyGet();
+    // ProxyGet.instance = pget;
 
     const cli = await RMQ_proxyClientQuery.createRMQ_clientQuery(
       proxyRMQnames.exchange,
@@ -23,16 +24,14 @@ export class ProxyGet implements IProxyManager {
     );
     ProxyGet.instanceRMQ_proxyClientQuery = cli;
 
-    return pget;
+    return cli;
   }
 
-  async getProxy(leasedTime: number): Promise<GetProxyClient | ErrType> {
-    const res = await ProxyGet.instanceRMQ_proxyClientQuery.sendRequestAndResieveAnswer<ParamGetProxy, GetProxyReturn>(
-      proxyRMQnames.getproxy,
-      {
-        leasedTime,
-      },
-    );
+  static async getProxy(leasedTime: number): Promise<GetProxyClient | ErrType> {
+    const cli = await ProxyGet.getInstance();
+    const res = await cli.sendRequestAndResieveAnswer<ParamGetProxy, GetProxyReturn>(proxyRMQnames.getproxy, {
+      leasedTime,
+    });
     return { proxy: res.userData.userData, uniqueKey: res.userData.uniqueKey };
   }
   /*
@@ -55,8 +54,9 @@ p1.userData.uniqueKey
   /*
     возврат в код происходит почти мгновенно
    */
-  async returnProxy(uniqueKey: string) {
-    ProxyGet.instanceRMQ_proxyClientQuery.sendRequestOnly<ParamReturnProxy>(proxyRMQnames.returnProxy, {
+  static async returnProxy(uniqueKey: string) {
+    const cli = await ProxyGet.getInstance();
+    cli.sendRequestOnly<ParamReturnProxy>(proxyRMQnames.returnProxy, {
       uniqueKey,
     });
   }

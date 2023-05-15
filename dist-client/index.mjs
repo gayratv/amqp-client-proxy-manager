@@ -618,15 +618,20 @@ function delay(ms = 1e4) {
 import { AMQPClient } from "amqp-client-fork-gayrat";
 import process2 from "process";
 var _RmqConnection = class {
-  connection;
-  channel;
   constructor() {
   }
   /*
    * инициализирует connection + chanel
    */
   static async RmqConnection() {
-    const rmqConnection = new _RmqConnection();
+    if (_RmqConnection.connection)
+      return;
+    if (_RmqConnection.initializationState === "working") {
+      return new Promise((resolve, reject) => {
+        _RmqConnection.initializationQueue.push(resolve);
+      });
+    }
+    _RmqConnection.initializationState = "working";
     const log = NLog.getInstance();
     log.info("\u0411\u0443\u0434\u0435\u0442 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D host rmq : ", process2.env.RMQ_HOST);
     const amqp = new AMQPClient("amqp://" + process2.env.RMQ_HOST);
@@ -635,7 +640,7 @@ var _RmqConnection = class {
     do {
       try {
         error = false;
-        rmqConnection.connection = await amqp.connect();
+        _RmqConnection.connection = await amqp.connect();
       } catch (e) {
         error = true;
         cntRetry++;
@@ -645,24 +650,29 @@ var _RmqConnection = class {
     } while (error && cntRetry < 2);
     if (error)
       process2.exit(105);
-    rmqConnection.channel = await rmqConnection.connection.channel();
-    rmqConnection.channel.basicQos(1, 0, false);
-    return rmqConnection;
+    _RmqConnection.channel = await _RmqConnection.connection.channel();
+    _RmqConnection.channel.basicQos(1, 0, false);
+    _RmqConnection.initializationQueue.forEach((calbackFn) => {
+      log.debug("RmqConnection initialization done, calbackFn calles");
+      calbackFn(null);
+    });
   }
   static async getInstance() {
-    if (!_RmqConnection.instance) {
-      _RmqConnection.instance = await _RmqConnection.RmqConnection();
+    if (!_RmqConnection.connection) {
+      await _RmqConnection.RmqConnection();
     }
-    return _RmqConnection.instance;
   }
-  async closeConnection() {
-    if (!_RmqConnection.instance)
+  static async closeConnection() {
+    if (!_RmqConnection.connection)
       return;
-    await this.connection.close();
+    await _RmqConnection.connection.close();
   }
 };
 var RmqConnection = _RmqConnection;
-__publicField(RmqConnection, "instance");
+__publicField(RmqConnection, "connection", null);
+__publicField(RmqConnection, "channel", null);
+__publicField(RmqConnection, "initializationState", "start");
+__publicField(RmqConnection, "initializationQueue", []);
 
 // src/rmq-request-responce/lib/base-req-res.ts
 var RMQ_construct_exchange = class {
@@ -678,10 +688,10 @@ var RMQ_construct_exchange = class {
    * инициализирует exchange типа direct
    */
   async createRMQ_construct_exchange() {
-    const rcon = await RmqConnection.getInstance();
-    this.connection = rcon.connection;
-    this.channel = rcon.channel;
-    await rcon.channel.exchangeDeclare(this.exchange, "direct", { durable: false });
+    await RmqConnection.getInstance();
+    this.connection = RmqConnection.connection;
+    this.channel = RmqConnection.channel;
+    await RmqConnection.channel.exchangeDeclare(this.exchange, "direct", { durable: false });
   }
 };
 
@@ -760,13 +770,12 @@ var RMQ_proxyClientQuery = class extends RMQ_clientQueryBase {
     }
   };
   /*
-   * послать сообщение  обработчику и получить ответ
+   * послать сообщение обработчику и получить ответ
    * params если определен - то должен быть объектом с ключом
    */
   async sendRequestAndResieveAnswer(routingKey, params) {
     const internalID = this.internalID++;
-    const msg = params;
-    await this.channel.basicPublish(this.exchange, routingKey, JSON.stringify(msg), {
+    await this.channel.basicPublish(this.exchange, routingKey, JSON.stringify(params), {
       deliveryMode: 1,
       correlationId: internalID.toString(),
       replyTo: this.responceQueueName,
@@ -804,29 +813,26 @@ var RMQ_proxyClientQuery = class extends RMQ_clientQueryBase {
 
 // src/rmq-request-responce/clients/proxy-get.ts
 var _ProxyGet = class {
+  // static instance: ProxyGet = null;
   // конструктор нельзя вызвать
   constructor() {
   }
   static async getInstance() {
-    if (_ProxyGet.instance)
-      return _ProxyGet.instance;
-    const pget = new _ProxyGet();
-    _ProxyGet.instance = pget;
+    if (_ProxyGet.instanceRMQ_proxyClientQuery)
+      return _ProxyGet.instanceRMQ_proxyClientQuery;
     const cli = await RMQ_proxyClientQuery.createRMQ_clientQuery(
       proxyRMQnames.exchange,
       proxyRMQnames.getproxy,
       proxyRMQnames.getproxy
     );
     _ProxyGet.instanceRMQ_proxyClientQuery = cli;
-    return pget;
+    return cli;
   }
-  async getProxy(leasedTime) {
-    const res = await _ProxyGet.instanceRMQ_proxyClientQuery.sendRequestAndResieveAnswer(
-      proxyRMQnames.getproxy,
-      {
-        leasedTime
-      }
-    );
+  static async getProxy(leasedTime) {
+    const cli = await _ProxyGet.getInstance();
+    const res = await cli.sendRequestAndResieveAnswer(proxyRMQnames.getproxy, {
+      leasedTime
+    });
     return { proxy: res.userData.userData, uniqueKey: res.userData.uniqueKey };
   }
   /*
@@ -848,15 +854,16 @@ var _ProxyGet = class {
   /*
     возврат в код происходит почти мгновенно
    */
-  async returnProxy(uniqueKey) {
-    _ProxyGet.instanceRMQ_proxyClientQuery.sendRequestOnly(proxyRMQnames.returnProxy, {
+  static async returnProxy(uniqueKey) {
+    const cli = await _ProxyGet.getInstance();
+    cli.sendRequestOnly(proxyRMQnames.returnProxy, {
       uniqueKey
     });
   }
 };
 var ProxyGet = _ProxyGet;
+// export class ProxyGet implements IProxyManager {
 __publicField(ProxyGet, "instanceRMQ_proxyClientQuery", null);
-__publicField(ProxyGet, "instance", null);
 export {
   ProxyGet,
   RMQ_proxyClientQuery,

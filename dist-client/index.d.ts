@@ -5,13 +5,14 @@ declare module "rmq-request-responce/lib/rmq-connection" {
     import "helpers/dotenv-init";
     import { AMQPClient, AMQPChannel } from 'amqp-client-fork-gayrat';
     export class RmqConnection {
-        connection: AMQPClient;
-        channel: AMQPChannel;
-        private static instance;
+        static connection: AMQPClient;
+        static channel: AMQPChannel;
+        static initializationState: string;
+        static initializationQueue: Array<unknown>;
         private constructor();
         private static RmqConnection;
-        static getInstance(): Promise<RmqConnection>;
-        closeConnection(): Promise<void>;
+        static getInstance(): Promise<void>;
+        static closeConnection(): Promise<void>;
     }
 }
 declare module "rmq-request-responce/lib/base-req-res" {
@@ -312,14 +313,14 @@ declare module "rmq-request-responce/types/proxy-manager-interface" {
     }
 }
 declare module "rmq-request-responce/clients/proxy-get" {
-    import { ErrType, GetProxyClient, IProxyManager } from "rmq-request-responce/types/proxy-manager-interface";
-    export class ProxyGet implements IProxyManager {
-        private static instanceRMQ_proxyClientQuery;
-        private static instance;
+    import { RMQ_proxyClientQuery } from "rmq-request-responce/clients/clients";
+    import { ErrType, GetProxyClient } from "rmq-request-responce/types/proxy-manager-interface";
+    export class ProxyGet {
+        static instanceRMQ_proxyClientQuery: RMQ_proxyClientQuery;
         private constructor();
-        static getInstance(): Promise<ProxyGet>;
-        getProxy(leasedTime: number): Promise<GetProxyClient | ErrType>;
-        returnProxy(uniqueKey: string): Promise<void>;
+        static getInstance(): Promise<RMQ_proxyClientQuery>;
+        static getProxy(leasedTime: number): Promise<GetProxyClient | ErrType>;
+        static returnProxy(uniqueKey: string): Promise<void>;
     }
 }
 declare module "amqp-client-proxy-manager" {
